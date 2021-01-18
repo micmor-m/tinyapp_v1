@@ -12,7 +12,11 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
-function generateRandomString() {}
+//generate a "unique" shortURL, by returning a string of 6 random alphanumeric characters
+//used to generate random shortURL
+const generateRandomString = () => {
+  return Math.random().toString(36).substring(2, 8);
+};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -33,6 +37,15 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
+
+  //generete random short URL
+  const newShortURL = generateRandomString();
+
+  console.log(newShortURL);
+
+  urlDatabase[newShortURL] = req.body.longURL;
+  console.log(urlDatabase);
+
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
 
