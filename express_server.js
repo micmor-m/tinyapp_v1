@@ -120,10 +120,41 @@ app.post("/urls/logout", (req, res) => {
   res.redirect(`/urls`);
 });
 
-app.post("/urls/login", (req, res) => {
+app.post("/login", (req, res) => {
   //console.log(req.body.username);
-  res.cookie("username", req.body.username);
-  res.redirect(`/urls`);
+  const email = req.body.email;
+  const password = req.body.password;
+  console.log("email", email);
+  console.log("password", password);
+
+  if (!email || !password) {
+    // res.status(400).send(errorMsg);
+    res.statusCode = 404;
+    res.end("Please fill in both password and email!");
+  }
+
+  console.log("users", users);
+
+  let userExist = false;
+  let userId;
+
+  for (const user in users) {
+    if (users[user].email === email && users[user].password === password) {
+      userExist = true;
+      userId = users[user].id;
+    }
+  }
+
+  if (userExist) {
+    res.cookie("user_id", userId);
+    res.redirect("/urls");
+  } else {
+    res.status(403).send("User not exist or password not match");
+    return;
+  }
+
+  //res.cookie("username", req.body.user);
+  //res.redirect(`/urls`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
