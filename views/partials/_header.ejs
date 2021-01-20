@@ -20,47 +20,21 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-      </div>
-      <% if (user) { %>
-      <div class="navbar-nav">
-        <p
-          class="align-middle"
-          style="
-            margin-bottom: 0px;
-            display: inline-block;
-            padding-top: 0.3125rem;
-            padding-bottom: 0.3125rem;
-            margin-right: 1rem;
-          "
-        >
-          Logged In as: <%= user.email %>
-        </p>
-        <form class="form-inline" action="/urls/logout" method="POST">
-          <button
-            type="submit"
-            class="btn btn-primary"
+        <% if (user) { %>
+        <div class="navbar-nav">
+          <p
+            class="align-middle"
             style="
-              background-color: transparent;
-              border-color: black;
-              color: black;
+              margin-bottom: 0px;
+              display: inline-block;
+              padding-top: 0.3125rem;
+              padding-bottom: 0.3125rem;
+              margin-right: 1rem;
             "
           >
-            Logout
-          </button>
-        </form>
-      </div>
-
-      <% } else { %>
-      <div>
-        <form class="form-inline" action="/urls/login" method="POST">
-          <div class="form-group">
-            <input
-              class="form-control"
-              type="text"
-              name="username"
-              placeholder="Username"
-              style="width: 200px; margin-right: 1em; margin-bottom: 0.1rem"
-            />
+            Logged In as: <%= user.email %>
+          </p>
+          <form class="form-inline" action="/urls/logout" method="POST">
             <button
               type="submit"
               class="btn btn-primary"
@@ -70,13 +44,16 @@
                 color: black;
               "
             >
-              Sign in
+              Logout
             </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
 
-      <% } %>
+        <% } else { %>
+        <a class="nav-item nav-link" href="/register">Register</a>
+        <a class="nav-item nav-link" href="/login">Login</a>
+        <% } %>
+      </div>
     </div>
   </nav>
 </header>
