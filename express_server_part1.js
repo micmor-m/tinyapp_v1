@@ -33,28 +33,6 @@ const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 };
 
-const findUserByEmail = (usersDb, email) => {
-  for (let userId in usersDb) {
-    if (usersDb[userId].email === email) {
-      return usersDb[userId];
-    }
-  }
-  return false;
-};
-
-const authenticateUser = (usersDb, email, password) => {
-  // find the user with the email
-  const userFound = findUserByEmail(usersDb, email);
-
-  // if user is retrieved and the password checks out return the user
-  // otherwise return false
-  if (userFound && userFound.password === password) {
-    return userFound;
-  }
-
-  return false;
-};
-
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -79,15 +57,7 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const userId = req.cookies["user_id"];
-
-  // if the user is not logged in, redirect to login page
-  if (!userId) {
-    res.redirect("/login");
-    return;
-  }
-
-  const templateVars = { user: users[userId] };
+  const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
@@ -106,23 +76,33 @@ app.post("/register", (req, res) => {
     res.end("Please filli in both password and email!");
   }
 
-  const user = findUserByEmail(users, email);
-
-  if (user) {
-    res
-      .status(400)
-      .send("A user with that email already exists, try to login instead");
-    return;
-  }
-
-  // for (const user in users) {
-  //   if (users[user].email === email) {
-  //     res
-  //       .status(400)
-  //       .send("A user with that email already exists, try to login instead");
-  //     return;
+  // const findUserByEmail = (usersDb, email) => {
+  //   for (let userId in usersDb) {
+  //     if (usersDb[userId].email === email) {
+  //       return usersDb[userId];
+  //     }
   //   }
+
+  //   return false;
+  // };
+
+  //const user = findUserByEmail(users, email);
+
+  // if (user) {
+  //   res
+  //     .status(400)
+  //     .send('A user with that email already exists, try to login instead');
+  //   return;
   // }
+
+  for (const user in users) {
+    if (users[user].email === email) {
+      res
+        .status(400)
+        .send("A user with that email already exists, try to login instead");
+      return;
+    }
+  }
 
   const newUserId = generateRandomString();
   users[newUserId] = {
@@ -147,57 +127,39 @@ app.post("/login", (req, res) => {
   console.log("email", email);
   console.log("password", password);
 
-  //THIS  IS NOT REQUIRE IF THE REGISTER PAGE WORKS
-  // if (!email || !password) {
-  //   // res.status(400).send(errorMsg);
-  //   res.statusCode = 404;
-  //   res.end("Please fill in both password and email!");
-  // }
+  if (!email || !password) {
+    // res.status(400).send(errorMsg);
+    res.statusCode = 404;
+    res.end("Please fill in both password and email!");
+  }
 
-  //THIS IS NEEDED IF THERE IS NOT AUTHENTICATION FUNCTION
-  // let userExist = false;
-  // let userId;
-  // for (const user in users) {
-  //   if (users[user].email === email && users[user].password === password) {
-  //     userExist = true;
-  //     userId = users[user].id;
-  //   }
-  // }
+  console.log("users", users);
 
-  // if (userExist) {
-  //   res.cookie("user_id", userId);
-  //   res.redirect("/urls");
-  // } else {
-  //   res.status(403).send("User not exist or password not match");
-  //   return;
-  // }
+  let userExist = false;
+  let userId;
+
+  for (const user in users) {
+    if (users[user].email === email && users[user].password === password) {
+      userExist = true;
+      userId = users[user].id;
+    }
+  }
+
+  if (userExist) {
+    res.cookie("user_id", userId);
+    res.redirect("/urls");
+  } else {
+    res.status(403).send("User not exist or password not match");
+    return;
+  }
 
   //res.cookie("username", req.body.user);
   //res.redirect(`/urls`);
-
-  const authenticatedUser = authenticateUser(users, email, password);
-  if (authenticatedUser) {
-    // if the user is authenticated, set the user id in the cookies
-    res.cookie("user_id", authenticatedUser.id);
-
-    res.redirect("/urls");
-  } else {
-    // The user is not authenticated
-    res.status(403).send("Wrong credentials!");
-  }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls`);
-});
-
-//to handle the POST request from the client to edit an existing long URL in the database
-app.post("/urls/:shortURL", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL;
-  //urlDatabase[req.params.shortURL].userID = req.session["user_id"];
-  //redirection to specific page for the new created short link
-  res.redirect("/urls/");
 });
 
 app.post("/urls", (req, res) => {
