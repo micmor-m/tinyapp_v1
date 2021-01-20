@@ -14,6 +14,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 //generate a "unique" shortURL, by returning a string of 6 random alphanumeric characters
 //used to generate random shortURL
 const generateRandomString = () => {
@@ -41,6 +54,21 @@ app.get("/urls/new", (req, res) => {
 app.get("/register", (req, res) => {
   const templateVars = { username: req.cookies["username"] };
   res.render("urls_register", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const newUserId = generateRandomString();
+  users[newUserId] = {
+    id: newUserId,
+    email: email,
+    password: password,
+  };
+  //console.log(users);
+  debugger;
+  res.cookie("user_id", newUserId);
+  res.redirect(`/urls`);
 });
 
 app.post("/urls/logout", (req, res) => {
