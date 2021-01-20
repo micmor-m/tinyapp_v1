@@ -10,8 +10,8 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
+  b2xVn2: "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com",
 };
 
 const users = {
@@ -200,18 +200,10 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls/");
 });
 
-//genereta new short url
 app.post("/urls", (req, res) => {
   //generete random short URL
   const newShortURL = generateRandomString();
-  console.log(urlDatabase);
-  console.log("newShortURL", newShortURL);
-  console.log("req.body.longURL", req.body.longURL);
-  console.log("req.cookies user_id", req.cookies["user_id"]);
-  urlDatabase[newShortURL] = {};
-  urlDatabase[newShortURL].longURL = req.body.longURL;
-  urlDatabase[newShortURL].userID = req.cookies["user_id"];
-  console.log(urlDatabase);
+  urlDatabase[newShortURL] = req.body.longURL;
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -227,7 +219,7 @@ app.get("/urls/:shortURL", (req, res) => {
 //generate a link that will redirect to the appropriate longURL
 app.get("/u/:shortURL", (req, res) => {
   //const longURL = urlDatabase[req.params.shortURL].longURL;
-  const longURL = urlDatabase[req.params.shortURL].longURL;
+  const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
