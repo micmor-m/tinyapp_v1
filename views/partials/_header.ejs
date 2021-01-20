@@ -21,7 +21,7 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
-      <% if (username) { %>
+      <% if (user) { %>
       <div class="navbar-nav">
         <p
           class="align-middle"
@@ -33,7 +33,7 @@
             margin-right: 1rem;
           "
         >
-          Logged In as: <%= username %>
+          Logged In as: <%= user.email %>
         </p>
         <form class="form-inline" action="/urls/logout" method="POST">
           <button
