@@ -64,6 +64,41 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  if (!email || !password) {
+    // res.status(400).send(errorMsg);
+    res.statusCode = 404;
+    res.end("Please filli in both password and email!");
+  }
+
+  // const findUserByEmail = (usersDb, email) => {
+  //   for (let userId in usersDb) {
+  //     if (usersDb[userId].email === email) {
+  //       return usersDb[userId];
+  //     }
+  //   }
+
+  //   return false;
+  // };
+
+  //const user = findUserByEmail(users, email);
+
+  // if (user) {
+  //   res
+  //     .status(400)
+  //     .send('A user with that email already exists, try to login instead');
+  //   return;
+  // }
+
+  for (const user in users) {
+    if (users[user].email === email) {
+      res
+        .status(400)
+        .send("A user with that email already exists, try to login instead");
+      return;
+    }
+  }
+
   const newUserId = generateRandomString();
   users[newUserId] = {
     id: newUserId,
