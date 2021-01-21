@@ -55,6 +55,20 @@ const authenticateUser = (usersDb, email, password) => {
   return false;
 };
 
+// returns the list or urls that belongs to the id of the user
+const urlsForUser = (urlsDb, id) => {
+  const userUrls = {};
+
+  for (let shortURL in urlsDb) {
+    // if the url belongs to the user, add it to userUrls
+    if (urlsDb[shortURL].userID === id) {
+      userUrls[shortURL] = urlsDb[shortURL];
+    }
+  }
+
+  return userUrls;
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -64,12 +78,24 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  //const user = users[req.cookies["user_id"]];
-  //console.log(user);
+  const userId = req.cookies["user_id"];
+  console.log(urlsForUser(urlDatabase, userId));
+
   const templateVars = {
-    urls: urlDatabase,
-    user: users[req.cookies["user_id"]],
+    urls: urlsForUser(urlDatabase, userId),
+    user: users[userId],
   };
+
+  if (!userId) {
+    res.statusCode = 401;
+    let templateVars = {
+      user: users[userId],
+      errMessage: "401 To access the requested page you need to login first!",
+    };
+    res.render("urls_notFound", templateVars);
+    return;
+  }
+
   res.render("urls_index", templateVars);
 });
 
@@ -188,6 +214,22 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  // const userId = req.cookies["user_id"];
+  // const shortURL = req.params.shortURL;
+
+  // const urlBelongsToUser =
+  //   urlDatabase[shortURL] && urlDatabase[shortURL].userID === userId;
+
+  // if (!urlBelongsToUser) {
+  //   res.statusCode = 401;
+  //   let templateVars = {
+  //     user: users[userId],
+  //     errMessage: "401 The requested URL does not belong to you!",
+  //   };
+  //   res.render("urls_notFound", templateVars);
+  //   return;
+  // }
+
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls`);
 });
@@ -216,9 +258,35 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  const userId = req.cookies["user_id"];
+  const shortURL = req.params.shortURL;
+
+  const urlBelongsToUser =
+    urlDatabase[shortURL] && urlDatabase[shortURL].userID === userId;
+
+  if (!userId) {
+    res.statusCode = 401;
+    let templateVars = {
+      user: users[userId],
+      errMessage: "401 To access the requested URL you need to login first!",
+    };
+    res.render("urls_notFound", templateVars);
+    return;
+  }
+
+  if (!urlBelongsToUser) {
+    res.statusCode = 401;
+    let templateVars = {
+      user: users[userId],
+      errMessage: "401 The requested URL does not belong to you!",
+    };
+    res.render("urls_notFound", templateVars);
+    return;
+  }
+
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[req.cookies["user_id"]],
   };
   res.render("urls_show", templateVars);
