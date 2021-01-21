@@ -82,21 +82,20 @@ app.get("/urls", (req, res) => {
   console.log(urlsForUser(urlDatabase, userId));
 
   const templateVars = {
+    // filter the urls for the logged in user
     urls: urlsForUser(urlDatabase, userId),
     user: users[userId],
   };
 
+  // set the default view name
+  let view = "urls_index";
+
+  // if the user is not logged in set the error_login page
   if (!userId) {
-    res.statusCode = 401;
-    let templateVars = {
-      user: users[userId],
-      errMessage: "401 To access the requested page you need to login first!",
-    };
-    res.render("urls_notFound", templateVars);
-    return;
+    view = "error_login";
   }
 
-  res.render("urls_index", templateVars);
+  res.render(view, templateVars);
 });
 
 app.get("/login", (req, res) => {
