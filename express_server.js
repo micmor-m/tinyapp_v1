@@ -155,7 +155,7 @@ app.post("/register", (req, res) => {
     email: email,
     password: password,
   };
-  //console.log(users);
+  console.log(users);
   res.cookie("user_id", newUserId);
   res.redirect(`/urls`);
 });
@@ -263,37 +263,39 @@ app.get("/urls/:shortURL", (req, res) => {
   const urlBelongsToUser =
     urlDatabase[shortURL] && urlDatabase[shortURL].userID === userId;
 
+  let view = "urls_show";
+
   if (!userId) {
-    res.statusCode = 401;
-    let templateVars = {
-      user: users[userId],
-      errMessage: "401 To access the requested URL you need to login first!",
-    };
-    res.render("urls_notFound", templateVars);
-    return;
+    // res.statusCode = 401;
+    // let templateVars = {
+    //   user: users[userId],
+    //   errMessage: "401 To access the requested URL you need to login first!",
+    // };
+    view = "error_login";
   }
 
   if (!urlBelongsToUser) {
-    res.statusCode = 401;
-    let templateVars = {
-      user: users[userId],
-      errMessage: "401 The requested URL does not belong to you!",
-    };
-    res.render("urls_notFound", templateVars);
-    return;
+    // res.statusCode = 401;
+    // let templateVars = {
+    //   user: users[userId],
+    //   errMessage: "401 The requested URL does not belong to you!",
+    // };
+    // res.render("urls_notFound", templateVars);
+    // return;
+    view = "error_url";
   }
 
   const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[req.cookies["user_id"]],
+    shortURL: shortURL,
+    longURL: urlDatabase[shortURL].longURL,
+    user: users[userId],
   };
-  res.render("urls_show", templateVars);
+
+  res.render(view, templateVars);
 });
 
-//generate a link that will redirect to the appropriate longURL
+// Allows anyone to be redirected to the longURL
 app.get("/u/:shortURL", (req, res) => {
-  //const longURL = urlDatabase[req.params.shortURL].longURL;
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
